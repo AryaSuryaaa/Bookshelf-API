@@ -9,6 +9,25 @@ const addBookHandler = (request, h) => {
   const insertedAt = new Date().toISOString();
   const updatedAt = insertedAt;
 
+
+  if(!name) {
+    const response = h.response({
+      status: "fail",
+      message: "Gagal menambahkan buku. Mohon isi nama buku",
+    });
+    response.code(400);
+    return response;
+  }
+
+  if(readPage > pageCount) {
+    const response = h.response({
+      status: "fail",
+      message: "Gagal menambahkan buku. readPage tidak boleh lebih besar dari pageCount",
+    });
+    response.code(400);
+    return response;
+  } 
+
   const newBook = {
     id, name, year, author, summary, publisher, pageCount, readPage, finished, reading, insertedAt, updatedAt
   };
@@ -16,28 +35,10 @@ const addBookHandler = (request, h) => {
   books.push(newBook);
 
   const isSuccess = books.filter((book) => book.id === id).length > 0;
-  const noSubmitName = books.filter((book) => book.name) == undefined;
-  const overPage = readPage > pageCount;
 
   // console.log(newBook);
   
-  
   if(isSuccess) {
-    if(noSubmitName) {
-      const response = h.response({
-        status: "fail",
-        message: "Gagal menambahkan buku. Mohon isi nama buku",
-      });
-      response.code(400);
-      return response;
-    } else if(overPage) {
-      const response = h.response({
-        status: "fail",
-        message: "Gagal menambahkan buku. readPage tidak boleh lebih besar dari pageCount",
-      });
-      response.code(400);
-      return response;
-    } else {
         const response = h.response({
         status: "success",
         message: "Buku berhasil ditambahkan",
@@ -47,7 +48,7 @@ const addBookHandler = (request, h) => {
       });
       response.code(201);
       return response;
-    }
+    
   } 
   
   response = h.response ({
@@ -59,5 +60,15 @@ const addBookHandler = (request, h) => {
 }
 
 
+const getAllBooksHandler = (request, h) => ({
+  status: "success",
+  data: {
+    books: books.map((book) => ({
+      id: book.id,
+      name: book.name,
+      publisher: book.publisher
+    }))
+  }
+})
 
-module.exports = { addBookHandler };
+module.exports = { addBookHandler, getAllBooksHandler };
